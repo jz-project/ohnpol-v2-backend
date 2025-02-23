@@ -1,0 +1,24 @@
+---
+name: Feature request
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
+
+---
+name: 이슈 템플릿
+about: 해당 이슈 생성 템플릿을 사용해 이슈를 생성해주세요.
+title: ''
+labels: ''
+assignees: ''
+
+---
+
+## Description
+> 이슈에 대한 간단한 설명을 작성해주세요.
+
+## Todo
+- [ ] 할 일 1
+- [ ] 할 일 2
