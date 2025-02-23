@@ -5,10 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/database.configuration';
 import { UsersModule } from './users/users.module';
-import { ArtistsService } from './nest/artists/artists.service';
 import { ArtistsModule } from './artists/artists.module';
 import { PhotoCardsModule } from './photo-cards/photo-cards.module';
-import { DecoCardModule } from './deco-card/deco-card.module';
 import { DecoCardsService } from './deco-cards/deco-cards.service';
 import { DecoCardsModule } from './deco-cards/deco-cards.module';
 import { PostsModule } from './posts/posts.module';
@@ -30,7 +28,6 @@ import { FavoritesModule } from './favorites/favorites.module';
     UsersModule,
     ArtistsModule,
     PhotoCardsModule,
-    DecoCardModule,
     DecoCardsModule,
     PostsModule,
     CollectionsModule,
@@ -38,6 +35,6 @@ import { FavoritesModule } from './favorites/favorites.module';
     FavoritesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, ArtistsService, DecoCardsService],
+  providers: [AppService, DecoCardsService],
 })
 export class AppModule {}
