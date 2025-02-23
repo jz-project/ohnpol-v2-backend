@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Timestamp,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class PhotoCard {
@@ -28,4 +35,10 @@ export class PhotoCard {
 
   @Column({ default: false })
   isActivated: boolean;
+
+  @CreateDateColumn()
+  createdAt: Timestamp;
+
+  @UpdateDateColumn()
+  updatedAt: Timestamp;
 }

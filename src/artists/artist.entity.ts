@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Timestamp,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -33,8 +34,8 @@ export class Artist {
   collectionQuantity: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt: Timestamp;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: Timestamp;
 }
