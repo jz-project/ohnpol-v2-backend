@@ -1,6 +1,17 @@
-import { Column, CreateDateColumn, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn } from 'typeorm';
+import { Artist } from 'src/artists/artist.entity';
+import { PhotoCard } from 'src/photo-cards/photo-card.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Timestamp,
+  UpdateDateColumn,
+} from 'typeorm';
 
-export class collection {
+@Entity()
+export class Collection {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -24,4 +35,10 @@ export class collection {
 
   @UpdateDateColumn()
   updatedAt: Timestamp;
+
+  @ManyToOne(() => Artist, (artist) => artist.id)
+  artist: Artist;
+
+  @ManyToOne(() => PhotoCard, (photoCard) => photoCard.collectionName)
+  photoCard: PhotoCard;
 }

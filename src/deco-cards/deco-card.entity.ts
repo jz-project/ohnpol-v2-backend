@@ -1,19 +1,26 @@
+import { Post } from 'src/posts/post.entity';
+import { User } from 'src/users/user.entity';
 import {
   Column,
   CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
 } from 'typeorm';
 
-export class decoCard {
+@Entity()
+export class DecoCard {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   decoCard: string;
 
-  @Column()
+  @Column({ type: 'timestamp' })
   savedDatetime: Date;
 
   @CreateDateColumn()
@@ -21,4 +28,11 @@ export class decoCard {
 
   @UpdateDateColumn()
   updatedAt: Timestamp;
+
+  @OneToOne(() => Post)
+  @JoinColumn()
+  post: Post;
+
+  @ManyToOne(() => User, (user) => user.id)
+  user: User;
 }

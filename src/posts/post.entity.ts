@@ -1,9 +1,28 @@
-import { Column, PrimaryGeneratedColumn, Timestamp } from 'typeorm';
+import { User } from 'src/users/user.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  Timestamp,
+  UpdateDateColumn,
+} from 'typeorm';
 
+@Entity()
 export class Post {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  postedDatetime: Timestamp;
+  @Column({ type: 'timestamp' })
+  postedDatetime: Date;
+
+  @CreateDateColumn()
+  createdAt: Timestamp;
+
+  @UpdateDateColumn()
+  updatedAt: Timestamp;
+
+  @ManyToMany(() => User, (user) => user.likedPosts)
+  likedBy: User[];
 }

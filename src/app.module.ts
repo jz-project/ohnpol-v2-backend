@@ -11,8 +11,6 @@ import { DecoCardsService } from './deco-cards/deco-cards.service';
 import { DecoCardsModule } from './deco-cards/deco-cards.module';
 import { PostsModule } from './posts/posts.module';
 import { CollectionsModule } from './collections/collections.module';
-import { LikesModule } from './likes/likes.module';
-import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
   imports: [
@@ -31,8 +29,6 @@ import { FavoritesModule } from './favorites/favorites.module';
     DecoCardsModule,
     PostsModule,
     CollectionsModule,
-    LikesModule,
-    FavoritesModule,
   ],
   controllers: [AppController],
   providers: [AppService, DecoCardsService],

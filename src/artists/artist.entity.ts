@@ -1,7 +1,11 @@
+import { Collection } from 'src/collections/collection.entity';
+import { User } from 'src/users/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
@@ -21,14 +25,14 @@ export class Artist {
   @Column()
   memberCount: number;
 
-  @Column()
-  members: string[];
+  @Column({ type: 'json' })
+  members: any;
 
   @Column()
   photo: string;
 
-  @Column()
-  memberPhoto: JSON;
+  @Column({ type: 'json' })
+  memberPhoto: any;
 
   @Column()
   collectionQuantity: number;
@@ -38,4 +42,10 @@ export class Artist {
 
   @UpdateDateColumn()
   updatedAt: Timestamp;
+
+  @OneToMany(() => Collection, (collection) => collection.id)
+  collection: Collection[];
+
+  @ManyToMany(() => User, (user) => user.favoriteArtists)
+  favoritedBy: User[];
 }
