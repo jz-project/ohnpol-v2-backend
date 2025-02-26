@@ -1,11 +1,11 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { User } from 'src/users/user.entity';
-import { Artist } from 'src/artists/artist.entity';
-import { PhotoCard } from 'src/photo-cards/photo-card.entity';
-import { Collection } from 'src/collections/collection.entity';
-import { DecoCard } from 'src/deco-cards/deco-card.entity';
-import { Post } from 'src/posts/post.entity';
+import { User } from 'src/modules/users/user.entity';
+import { Artist } from 'src/modules/artists/artist.entity';
+import { PhotoCard } from 'src/modules/photo-cards/photo-card.entity';
+import { Collection } from 'src/modules/collections/collection.entity';
+import { DecoCard } from 'src/modules/deco-cards/deco-card.entity';
+import { Post } from 'src/modules/posts/post.entity';
 
 export const getTypeOrmConfig = (
   ConfigService: ConfigService

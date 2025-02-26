@@ -1,7 +1,7 @@
-import { Artist } from 'src/artists/artist.entity';
-import { DecoCard } from 'src/deco-cards/deco-card.entity';
-import { PhotoCard } from 'src/photo-cards/photo-card.entity';
-import { Post } from 'src/posts/post.entity';
+import { Artist } from 'src/modules/artists/artist.entity';
+import { DecoCard } from 'src/modules/deco-cards/deco-card.entity';
+import { PhotoCard } from 'src/modules/photo-cards/photo-card.entity';
+import { Post } from 'src/modules/posts/post.entity';
 import {
   Column,
   CreateDateColumn,
@@ -10,7 +10,6 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
-  Timestamp,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -34,11 +33,11 @@ export class User {
   @Column({ type: 'text' })
   biography: string;
 
-  @CreateDateColumn()
-  createdAt: Timestamp;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Timestamp;
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 
   @OneToMany(() => PhotoCard, (photoCard) => photoCard.id)
   photoCards: PhotoCard[];

@@ -1,5 +1,5 @@
-import { Artist } from 'src/artists/artist.entity';
-import { PhotoCard } from 'src/photo-cards/photo-card.entity';
+import { Artist } from 'src/modules/artists/artist.entity';
+import { PhotoCard } from 'src/modules/photo-cards/photo-card.entity';
 import {
   Column,
   CreateDateColumn,

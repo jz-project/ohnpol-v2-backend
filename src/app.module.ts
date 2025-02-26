@@ -4,13 +4,14 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/database.configuration';
-import { UsersModule } from './users/users.module';
-import { ArtistsModule } from './artists/artists.module';
-import { PhotoCardsModule } from './photo-cards/photo-cards.module';
-import { DecoCardsService } from './deco-cards/deco-cards.service';
-import { DecoCardsModule } from './deco-cards/deco-cards.module';
-import { PostsModule } from './posts/posts.module';
-import { CollectionsModule } from './collections/collections.module';
+import { UsersModule } from './modules/users/users.module';
+import { ArtistsModule } from './modules/artists/artists.module';
+import { PhotoCardsModule } from './modules/photo-cards/photo-cards.module';
+import { DecoCardsService } from './modules/deco-cards/deco-cards.service';
+import { DecoCardsModule } from './modules/deco-cards/deco-cards.module';
+import { PostsModule } from './modules/posts/posts.module';
+import { CollectionsModule } from './modules/collections/collections.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CollectionsModule } from './collections/collections.module';
     DecoCardsModule,
     PostsModule,
     CollectionsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, DecoCardsService],

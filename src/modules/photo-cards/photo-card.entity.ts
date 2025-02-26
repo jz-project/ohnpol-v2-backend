@@ -10,9 +10,9 @@ import {
   Timestamp,
   UpdateDateColumn,
 } from 'typeorm';
-import { DecoCard } from 'src/deco-cards/deco-card.entity';
-import { User } from 'src/users/user.entity';
-import { Collection } from 'src/collections/collection.entity';
+import { DecoCard } from 'src/modules/deco-cards/deco-card.entity';
+import { User } from 'src/modules/users/user.entity';
+import { Collection } from 'src/modules/collections/collection.entity';
 
 @Entity()
 export class PhotoCard {

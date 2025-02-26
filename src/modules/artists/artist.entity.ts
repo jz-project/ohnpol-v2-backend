@@ -1,5 +1,5 @@
-import { Collection } from 'src/collections/collection.entity';
-import { User } from 'src/users/user.entity';
+import { Collection } from 'src/modules/collections/collection.entity';
+import { User } from 'src/modules/users/user.entity';
 import {
   Column,
   CreateDateColumn,
