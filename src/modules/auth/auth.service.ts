@@ -1,9 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { UserRegisterDto } from '../users/dto/user.dto';
+import { UserLogInDto, UserRegisterDto } from '../users/dto/user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -61,6 +67,37 @@ export class AuthService {
       await this.usersRepository.save(newUser);
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  // 사용자 로그인
+  async logIn(logIn: UserLogInDto) {
+    const { email, password } = logIn;
+
+    try {
+      // 가입된 이메일인지 확인
+      const user = await this.usersRepository.findOne({ where: { email } });
+      if (!user) {
+        throw new NotFoundException('가입되지 않은 이메일입니다.');
+      }
+
+      // 비밀번호 확인
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new BadRequestException('비밀번호가 틀렸습니다.');
+      }
+
+      const payload = { sub: user.id, email: user.email };
+      console.log(`로그인 (계정: ${email})`);
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+      };
+    } catch (error) {
+      console.error('로그인 중 오류 발생:', error);
+      throw new HttpException(
+        { success: false, error: '로그인 중 오류가 발생했습니다.' },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }
