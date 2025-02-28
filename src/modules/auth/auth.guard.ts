@@ -29,12 +29,12 @@ export class AuthGuard implements CanActivate {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('토큰이 유효하지 않습니다.');
     }
     return true;
   }
 
-  private extractTokenFromHeader(request: Request) {
+  private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
