@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsJSON, IsNotEmpty } from 'class-validator';
 
 export class CreateArtistDto {
   @IsNotEmpty()
@@ -11,7 +11,8 @@ export class CreateArtistDto {
   memberCount: number;
 
   @IsNotEmpty()
-  members: string[];
+  @IsJSON()
+  members: any;
 
   @IsNotEmpty()
   photo: string;

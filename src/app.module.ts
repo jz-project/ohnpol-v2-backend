@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getTypeOrmConfig } from './config/database.configuration';
+import { getDataSourceOptions } from './config/database.configuration';
 import { UsersModule } from './modules/users/users.module';
 import { ArtistsModule } from './modules/artists/artists.module';
 import { PhotoCardsModule } from './modules/photo-cards/photo-cards.module';
@@ -22,7 +22,7 @@ import { AuthModule } from './modules/auth/auth.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: getTypeOrmConfig,
+      useFactory: getDataSourceOptions,
     }),
     UsersModule,
     ArtistsModule,

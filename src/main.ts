@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { insertArtistData } from './dummy-data/artist.data';
 
 export async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,5 +34,16 @@ export async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
+
+async function InsertData() {
+  try {
+    // 데이터 삽입 함수 실행
+    await insertArtistData();
+    console.log('애플리케이션 실행 완료');
+  } catch (error) {
+    console.error('애플리케이션 실행 중 오류 발생: ', error);
+  }
+}
+
 bootstrap();
+InsertData();
