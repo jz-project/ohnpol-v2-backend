@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Param,
   Post,
   Request,
   UnauthorizedException,
@@ -38,10 +39,10 @@ export class UsersController {
     description: '유효하지 않은 회원/포스트 정보입니다.',
   })
   async setLike(
-    @Request() req: { user: { sub: number }; post: { id: number } }
+    @Request() req: { user: { sub: number } },
+    @Param('postId') postId: number
   ) {
     const userId: number = req.user.sub;
-    const postId: number = req.post.id;
     return this.userService.setLike(userId, postId);
   }
 }
