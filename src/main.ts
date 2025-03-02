@@ -3,6 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { insertArtistData } from './dummy-data/artist.data';
+import { insertPostData } from './dummy-data/post.data';
+import { insertPhotoCardData } from './dummy-data/photoCard.data';
+import { insertDecoCardData } from './dummy-data/decoCard.data';
 
 export async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -39,6 +42,9 @@ async function InsertData() {
   try {
     // 데이터 삽입 함수 실행
     await insertArtistData();
+    await insertPostData();
+    await insertPhotoCardData();
+    await insertDecoCardData();
     console.log('애플리케이션 실행 완료');
   } catch (error) {
     console.error('애플리케이션 실행 중 오류 발생: ', error);

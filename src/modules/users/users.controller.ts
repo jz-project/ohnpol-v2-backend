@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Request,
   UnauthorizedException,
   UseGuards,
@@ -28,5 +29,19 @@ export class UsersController {
       throw new UnauthorizedException('JWT payload에 사용자 ID가 없습니다.');
     }
     return this.userService.getProfile(userId);
+  }
+
+  @Post('/like/:postId')
+  @ApiResponse({ status: 201, description: '좋아요를 눌렀습니다.' })
+  @ApiResponse({
+    status: 400,
+    description: '유효하지 않은 회원/포스트 정보입니다.',
+  })
+  async setLike(
+    @Request() req: { user: { sub: number }; post: { id: number } }
+  ) {
+    const userId: number = req.user.sub;
+    const postId: number = req.post.id;
+    return this.userService.setLike(userId, postId);
   }
 }

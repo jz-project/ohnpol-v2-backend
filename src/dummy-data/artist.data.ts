@@ -27,8 +27,8 @@ export async function insertArtistData() {
       collectionQuantity: 1,
     });
 
-    console.log('데이터 삽입 성공!');
+    console.log('아티스트 데이터 삽입 성공!');
   } catch (error) {
-    console.error('데이터 삽입 중 오류 발생:', error);
+    console.error('아티스트 데이터 삽입 중 오류 발생:', error);
   }
 }
