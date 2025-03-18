@@ -16,7 +16,7 @@ import { User } from 'src/modules/users/user.entity';
 import { Collection } from 'src/modules/collections/collection.entity';
 
 @Entity()
-@Unique(['phtoCard']) // 사진이 중복되지 않도록 처리
+@Unique(['photoCard']) // 사진이 중복되지 않도록 처리
 export class PhotoCard {
   @PrimaryGeneratedColumn()
   id: number;
