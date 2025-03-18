@@ -108,4 +108,29 @@ export class UsersController {
       message: '좋아요가 성공적으로 추가되었습니다.',
     };
   }
+
+  @Delete('/favorite/:artistId')
+  @ApiResponse({
+    status: 204,
+    description: '즐겨찾기를 성공적으로 해제했습니다.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '이미 즐겨찾기가 해제된 상태입니다.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '유효하지 않은 회원/아티스트 정보입니다.',
+  })
+  async deleteFavorite(
+    @Request() req: { user: { sub: number } },
+    @Param('artistId') artistId: number
+  ) {
+    const userId: number = req.user.sub;
+
+    await this.userService.deleteFavorite(userId, artistId);
+    return {
+      statusCode: 204,
+    };
+  }
 }
