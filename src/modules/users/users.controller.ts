@@ -34,9 +34,13 @@ export class UsersController {
   }
 
   @Post('/like/:postId')
-  @ApiResponse({ status: 201, description: '좋아요를 눌렀습니다.' })
+  @ApiResponse({ status: 201, description: '좋아요를 성공적으로 눌렀습니다.' })
   @ApiResponse({
     status: 400,
+    description: '이미 좋아요를 누른 게시물입니다.',
+  })
+  @ApiResponse({
+    status: 404,
     description: '유효하지 않은 회원/포스트 정보입니다.',
   })
   async setLike(
@@ -44,13 +48,26 @@ export class UsersController {
     @Param('postId') postId: number
   ) {
     const userId: number = req.user.sub;
-    return this.userService.setLike(userId, postId);
+
+    // Service 호출 및 응답 반환
+    await this.userService.setLike(userId, postId);
+    return {
+      statusCode: 201,
+      message: '좋아요가 성공적으로 추가되었습니다.',
+    };
   }
 
   @Delete('/like/:postId')
-  @ApiResponse({ status: 204, description: '좋아요를 해제했습니다.' })
+  @ApiResponse({
+    status: 204,
+    description: '좋아요를 성공적으로 해제했습니다.',
+  })
   @ApiResponse({
     status: 400,
+    description: '이미 좋아요가 해제된 상태입니다.',
+  })
+  @ApiResponse({
+    status: 404,
     description: '유효하지 않은 회원/포스트 정보입니다.',
   })
   async deleteLike(
@@ -62,7 +79,20 @@ export class UsersController {
     await this.userService.deleteLike(userId, postId);
     return {
       statusCode: 204,
-      message: 'No Content',
     };
   }
+
+  // @Post('/favorite/:artistId')
+  // @ApiResponse({ status: 201, description: '즐겨찾기를 눌렀습니다.' })
+  // @ApiResponse({
+  //   status: 404,
+  //   description: '유효하지 않은 회원/아티스트 정보입니다.',
+  // })
+  // async setFavorite(
+  //   @Request() req: { user: { sub: number } },
+  //   @Param('postId') postId: number
+  // ) {
+  //   const userId: number = req.user.sub;
+  //   return this.userService.setLike(userId, postId);
+  // }
 }
