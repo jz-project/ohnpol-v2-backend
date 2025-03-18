@@ -9,12 +9,14 @@ import {
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 import { DecoCard } from 'src/modules/deco-cards/deco-card.entity';
 import { User } from 'src/modules/users/user.entity';
 import { Collection } from 'src/modules/collections/collection.entity';
 
 @Entity()
+@Unique(['phtoCard']) // 사진이 중복되지 않도록 처리
 export class PhotoCard {
   @PrimaryGeneratedColumn()
   id: number;
