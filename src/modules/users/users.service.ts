@@ -4,6 +4,7 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { UserProfileDto } from './dto/user.dto';
 import { Post } from '../posts/post.entity';
+//import { Artist } from '../artists/artist.entity';
 
 @Injectable()
 export class UsersService {
@@ -11,7 +12,7 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     @InjectRepository(Post)
-    private postsRepository: Repository<Post>
+    private postsRepository: Repository<Post>,
   ) {}
 
   async getProfile(userId: number): Promise<UserProfileDto> {
@@ -51,4 +52,43 @@ export class UsersService {
       postId: post.id,
     };
   }
+
+  async deleteLike(userId: number, postId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+    const post = await this.postsRepository.findOne({
+      where: { id: postId },
+    });
+
+    if (!post) {
+      throw new Error('포스트를 찾을 수 없습니다.');
+    }
+    if (!user) {
+      throw new Error('유저를 찾을 수 없습니다.');
+    }
+
+    await this.usersRepository
+      .createQueryBuilder()
+      .relation(User, 'likedPosts')
+      .of(user)
+      .remove(post);
+  }
+
+  // async setFavorite(userId: number, artistId: number) {
+  //   const user = await this.usersRepository.findOne({
+  //     where: { id: userId },
+  //   });
+  //   const artist = await this.artistsRepository.findOne({
+  //     where: { id: artistId },
+  //   });
+
+  //   if (!post) {
+  //     throw new Error('포스트를 찾을 수 없습니다.');
+  //   }
+  //   if (!user) {
+  //     throw new Error('아티스트를 찾을 수 없습니다.');
+  //   }
+  //   await this.repository;
+  // }
 }

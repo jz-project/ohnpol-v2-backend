@@ -22,7 +22,9 @@ import { AuthModule } from './modules/auth/auth.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: getDataSourceOptions,
+      // eslint-disable-next-line @typescript-eslint/require-await
+      useFactory: async (configService: ConfigService) =>
+        getDataSourceOptions(configService),
     }),
     UsersModule,
     ArtistsModule,

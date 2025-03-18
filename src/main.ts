@@ -24,7 +24,6 @@ export async function bootstrap() {
       },
       'access-token'
     )
-    .addTag('ohnpol')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory, {
@@ -36,6 +35,8 @@ export async function bootstrap() {
   });
 
   await app.listen(process.env.PORT ?? 3000);
+
+  await InsertData();
 }
 
 async function InsertData() {
@@ -45,11 +46,12 @@ async function InsertData() {
     await insertPostData();
     await insertPhotoCardData();
     await insertDecoCardData();
-    console.log('애플리케이션 실행 완료');
+
+    console.log('데이터 삽입 완료');
   } catch (error) {
-    console.error('애플리케이션 실행 중 오류 발생: ', error);
+    console.error('데이터 삽입 중 오류 발생: ', error);
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();
-InsertData();

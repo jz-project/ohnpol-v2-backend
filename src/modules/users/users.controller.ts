@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -9,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { UsersService } from './users.service';
-import { ApiBearerAuth, ApiResponse } from 'node_modules/@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 
 //@ApiTags('users')
 @Controller('users')
@@ -44,5 +45,24 @@ export class UsersController {
   ) {
     const userId: number = req.user.sub;
     return this.userService.setLike(userId, postId);
+  }
+
+  @Delete('/like/:postId')
+  @ApiResponse({ status: 204, description: '좋아요를 해제했습니다.' })
+  @ApiResponse({
+    status: 400,
+    description: '유효하지 않은 회원/포스트 정보입니다.',
+  })
+  async deleteLike(
+    @Request() req: { user: { sub: number } },
+    @Param('postId') postId: number
+  ) {
+    const userId: number = req.user.sub;
+
+    await this.userService.deleteLike(userId, postId);
+    return {
+      statusCode: 204,
+      message: 'No Content',
+    };
   }
 }
