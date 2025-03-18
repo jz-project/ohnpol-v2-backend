@@ -82,17 +82,30 @@ export class UsersController {
     };
   }
 
-  // @Post('/favorite/:artistId')
-  // @ApiResponse({ status: 201, description: '즐겨찾기를 눌렀습니다.' })
-  // @ApiResponse({
-  //   status: 404,
-  //   description: '유효하지 않은 회원/아티스트 정보입니다.',
-  // })
-  // async setFavorite(
-  //   @Request() req: { user: { sub: number } },
-  //   @Param('postId') postId: number
-  // ) {
-  //   const userId: number = req.user.sub;
-  //   return this.userService.setLike(userId, postId);
-  // }
+  @Post('/favorite/:artistId')
+  @ApiResponse({
+    status: 201,
+    description: '즐겨찾기를 성공적으로 눌렀습니다.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '이미 즐겨찾기를 누른 아티스트입니다.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '유효하지 않은 회원/아티스트 정보입니다.',
+  })
+  async setFavorite(
+    @Request() req: { user: { sub: number } },
+    @Param('artistId') artistId: number
+  ) {
+    const userId: number = req.user.sub;
+
+    // Service 호출 및 응답 반환
+    await this.userService.setFavorite(userId, artistId);
+    return {
+      statusCode: 201,
+      message: '좋아요가 성공적으로 추가되었습니다.',
+    };
+  }
 }

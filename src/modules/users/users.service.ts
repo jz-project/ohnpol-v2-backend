@@ -5,6 +5,7 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { UserProfileDto } from './dto/user.dto';
 import { Post } from '../posts/post.entity';
+import { Artist } from '../artists/artist.entity';
 
 @Injectable()
 export class UsersService {
@@ -12,7 +13,9 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     @InjectRepository(Post)
-    private postsRepository: Repository<Post>
+    private postsRepository: Repository<Post>,
+    @InjectRepository(Artist)
+    private artistsRepository: Repository<Artist>
   ) {}
 
   async getProfile(userId: number): Promise<UserProfileDto> {
@@ -95,23 +98,39 @@ export class UsersService {
     return { message: '좋아요가 성공적으로 삭제되었습니다.' };
   }
 
-  // async setFavorite(userId: number, artistId: number) {
-  //   const user = await this.usersRepository.findOne({
-  //     where: { id: userId },
-  //   });
-  //   const artist = await this.artistsRepository.findOne({
-  //     where: { id: artistId },
-  //   });
+  async setFavorite(userId: number, artistId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+    const artist = await this.artistsRepository.findOne({
+      where: { id: artistId },
+    });
 
-  //   if (!artist) {
-  //     throw new Error('포스트를 찾을 수 없습니다.');
-  //   }
-  //   if (!user) {
-  //     throw new Error('아티스트를 찾을 수 없습니다.');
-  //   }
-  //   return {
-  //     userId: user.id,
-  //     artistId: artist.id,
-  //   };
-  // }
+    if (!artist) {
+      throw new Error('아티스트를 찾을 수 없습니다.');
+    }
+    if (!user) {
+      throw new Error('유저를 찾을 수 없습니다.');
+    }
+
+    // 즐겨찾기 중복 여부 확인
+    const isFavorite = await this.usersRepository
+      .createQueryBuilder()
+      .relation(User, 'favoriteArtists')
+      .of(userId)
+      .loadOne();
+
+    if (isFavorite) {
+      throw new Error('이미 즐겨찾기를 누른 아티스트입니다.');
+    }
+
+    // 좋아요 추가
+    await this.usersRepository
+      .createQueryBuilder()
+      .relation(User, 'favoriteArtists')
+      .of(userId)
+      .add(artistId);
+
+    return { message: '즐겨찾기가 성공적으로 추가되었습니다.' };
+  }
 }
