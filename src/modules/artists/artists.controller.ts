@@ -21,4 +21,15 @@ export class ArtistsController {
       result: await this.artistService.getFavoriteArtistsInfo(userId),
     };
   }
+
+  @Get('/random-artists')
+  @ApiResponse({ status: 200, description: '랜덤 소속사 아티스트 정보 조회' })
+  //@ApiResponse({ status: 404, description: '즐겨찾기한 아티스트 없음' })
+  async randomEntertainmentArtist() {
+    return {
+      statusCode: 200,
+      message: '랜덤 소속사 아티스트 조회',
+      result: await this.artistService.randomEntertainmetArtist(),
+    };
+  }
 }
