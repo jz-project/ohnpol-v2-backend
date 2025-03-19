@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from 'node_modules/@nestjs/typeorm';
 import { User } from '../users/user.entity';
 import { Artist } from './artist.entity';
 import { Repository } from 'node_modules/typeorm';
-import { Post } from '../posts/post.entity';
 
 @Injectable()
 export class ArtistsService {
@@ -11,9 +10,7 @@ export class ArtistsService {
     @InjectRepository(Artist)
     private artistsRepository: Repository<Artist>,
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    @InjectRepository(Post)
-    private postsRepository: Repository<Post>
+    private usersRepository: Repository<User>
   ) {}
 
   async favoriteArtists(userId: number): Promise<Artist[]> {
@@ -70,6 +67,46 @@ export class ArtistsService {
       artists: artists.map((artist) => ({
         enterComp: artist.entertainmentCompany,
         photo: artist.photo,
+        groupName: artist.groupName,
+      })),
+    };
+  }
+
+  async artistTabPost(userId: number) {
+    const artists = await this.artistsRepository
+      .createQueryBuilder('artist')
+      .leftJoin('artist.collections', 'collection')
+      .leftJoin('collection.photoCards', 'photoCard')
+      .leftJoin('photocard.decoCards', 'decoCard')
+      .leftJoin('decoCard.posts', 'post')
+      .where('decoCard.user_id = :userId', { userId })
+      .distinct(true)
+      .getMany();
+
+    if (artists.length === 0) {
+      throw new NotFoundException('유저의 포스트가 없습니다.');
+    }
+    return {
+      artistsTabPost: artists.map((artist) => ({
+        id: artist.id,
+        groupName: artist.groupName,
+      })),
+    };
+  }
+
+  async artistTabFavorite(userId: number) {
+    const artists = await this.artistsRepository
+      .createQueryBuilder('artist')
+      .leftJoin('artist.favoritedBy', 'user') // artist -> user 관계 조인
+      .where('user_id = :userId', { userId })
+      .distinct(true)
+      .getMany();
+
+    if (artists.length === 0) {
+      throw new NotFoundException('즐겨찾기가 없습니다.');
+    }
+    return {
+      artistsTabFavorite: artists.map((artist) => ({
         groupName: artist.groupName,
       })),
     };

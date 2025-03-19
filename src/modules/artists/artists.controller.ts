@@ -32,4 +32,30 @@ export class ArtistsController {
       result: await this.artistService.randomEntertainmetArtist(),
     };
   }
+
+  @Get('/post/artist-tab')
+  @ApiResponse({ status: 200, description: '아티스트 탭 정보 조회' })
+  @ApiResponse({ status: 404, description: '포스트가 없습니다.' })
+  async artistTabPost(@Request() req: { user: { sub: number } }) {
+    const userId: number = req.user.sub;
+
+    return {
+      statusCode: 200,
+      message: '아티스트 탭 정보 조회',
+      result: await this.artistService.artistTabPost(userId),
+    };
+  }
+
+  @Get('/favorite/artist-tab')
+  @ApiResponse({ status: 200, description: '아티스트 탭 정보 조회' })
+  @ApiResponse({ status: 404, description: '즐겨찾기가 없습니다.' })
+  async artistTabFavorite(@Request() req: { user: { sub: number } }) {
+    const userId: number = req.user.sub;
+
+    return {
+      statusCode: 200,
+      message: '아티스트 탭 정보 조회',
+      result: await this.artistService.artistTabFavorite(userId),
+    };
+  }
 }
