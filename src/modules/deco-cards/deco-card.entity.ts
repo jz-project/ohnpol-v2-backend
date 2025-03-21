@@ -11,6 +11,7 @@ import {
   Timestamp,
   UpdateDateColumn,
 } from 'typeorm';
+import { PhotoCard } from '../photo-cards/photo-card.entity';
 
 @Entity()
 export class DecoCard {
@@ -35,4 +36,7 @@ export class DecoCard {
 
   @ManyToOne(() => User, (user) => user.id)
   user: User;
+
+  @ManyToOne(() => PhotoCard, (photoCard) => photoCard.id)
+  photoCard: PhotoCard;
 }

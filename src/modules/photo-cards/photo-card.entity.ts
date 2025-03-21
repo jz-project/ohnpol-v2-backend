@@ -2,10 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
@@ -51,13 +49,12 @@ export class PhotoCard {
   @UpdateDateColumn()
   updatedAt: Timestamp;
 
-  @OneToOne(() => DecoCard)
-  @JoinColumn()
-  decocard: DecoCard;
-
   @ManyToOne(() => User, (user) => user.id)
   user: User;
 
   @OneToMany(() => Collection, (collection) => collection.name)
   collection: Collection[];
+
+  @OneToMany(() => DecoCard, (decoCard) => decoCard.id)
+  decoCard: DecoCard[];
 }
