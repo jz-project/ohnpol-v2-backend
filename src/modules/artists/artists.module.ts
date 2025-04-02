@@ -13,6 +13,7 @@ import { AuthModule } from '../auth/auth.module';
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
     PostsModule,
+    AuthModule,
   ],
   providers: [ArtistsService],
   controllers: [ArtistsController],

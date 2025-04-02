@@ -7,7 +7,6 @@ import { getDataSourceOptions } from './config/database.configuration';
 import { UsersModule } from './modules/users/users.module';
 import { ArtistsModule } from './modules/artists/artists.module';
 import { PhotoCardsModule } from './modules/photo-cards/photo-cards.module';
-import { DecoCardsService } from './modules/deco-cards/deco-cards.service';
 import { DecoCardsModule } from './modules/deco-cards/deco-cards.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { CollectionsModule } from './modules/collections/collections.module';
@@ -35,6 +34,6 @@ import { AuthModule } from './modules/auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, DecoCardsService],
+  providers: [AppService],
 })
 export class AppModule {}

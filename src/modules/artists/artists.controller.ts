@@ -1,5 +1,5 @@
 import { Controller, Get, Request, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse } from 'node_modules/@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { ArtistsService } from './artists.service';
 
