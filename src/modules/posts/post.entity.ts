@@ -4,10 +4,12 @@ import {
   CreateDateColumn,
   Entity,
   ManyToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
 } from 'typeorm';
+import { DecoCard } from '../deco-cards/deco-card.entity';
 
 @Entity()
 export class Post {
@@ -25,4 +27,7 @@ export class Post {
 
   @ManyToMany(() => User, (user) => user.likedPosts)
   likedBy: User[];
+
+  @OneToOne(() => DecoCard, (decoCard) => decoCard.post)
+  decoCard: DecoCard;
 }
