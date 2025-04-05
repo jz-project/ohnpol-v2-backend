@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { DecoCardsController } from './deco-cards.controller';
 import { DecoCard } from './deco-card.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,12 +12,12 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([DecoCard, User, PhotoCard]), // PhotoCard 엔티티 추가
-    UsersModule,
+    forwardRef(() => UsersModule),
     PhotoCardsModule,
     AuthModule,
   ],
   providers: [DecoCardsService],
   controllers: [DecoCardsController],
-  exports: [DecoCardsService],
+  exports: [DecoCardsService, TypeOrmModule],
 })
 export class DecoCardsModule {}

@@ -1,4 +1,11 @@
-import { Controller, Get, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Request,
+  Post,
+  Param,
+} from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { PostsService } from './posts.service';
@@ -36,6 +43,25 @@ export class PostsController {
     return {
       statusCod: 200,
       message: 'now5 목록을 조회합니다.',
+    };
+  }
+
+  @Post('/:decocard-id')
+  @ApiResponse({ status: 201, description: '도안 게시를 완료합니다.' })
+  @ApiResponse({
+    status: 400,
+    description: '도안을 게시할 수 없습니다.',
+  })
+  async setPost(
+    @Request() req: { user: { sub: number } },
+    @Param('decoCardId') decoCardId: number
+  ) {
+    const userId: number = req.user.sub;
+
+    await this.postService.setPost(userId, decoCardId);
+    return {
+      status: 201,
+      message: '도안 게시를 완료합니다.',
     };
   }
 }

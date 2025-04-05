@@ -4,6 +4,7 @@ import { Post } from './post.entity';
 import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { DataSource } from 'typeorm';
+import { DecoCard } from '../deco-cards/deco-card.entity';
 
 @Injectable()
 export class PostsService {
@@ -12,6 +13,8 @@ export class PostsService {
     private postsRepository: Repository<Post>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(DecoCard)
+    private decoCardsRepository: Repository<DecoCard>,
     private dataSource: DataSource
   ) {}
 
@@ -117,5 +120,29 @@ export class PostsService {
         photo: row.decoCard,
       })),
     };
+  }
+
+  async setPost(userId: number, decoCardId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    const decoCard = await this.decoCardsRepository.findOne({
+      where: { id: decoCardId },
+    });
+
+    if (!user) {
+      throw new Error('유저를 찾을 수 없습니다.');
+    }
+    if (!decoCard) {
+      throw new Error('도안을 찾을 수 없습니다.');
+    }
+
+    const post = this.postsRepository.create({
+      postedDatetime: new Date(),
+      decoCard: decoCard,
+    });
+
+    return await this.postsRepository.save(post);
   }
 }
