@@ -23,4 +23,19 @@ export class PostsController {
       message: 'hot 10 목록을 조회합니다.',
     };
   }
+
+  @Get('/now5')
+  @ApiResponse({ status: 200, description: 'now 5 목록을 조회합니다.' })
+  @ApiResponse({
+    status: 404,
+    description: 'now 5 목록을 조회할 수 없습니다.',
+  })
+  async getNow5(@Request() req: { user: { sub: number } }) {
+    const userId: number = req.user.sub;
+    await this.postService.getNow5(userId);
+    return {
+      statusCod: 200,
+      message: 'now5 목록을 조회합니다.',
+    };
+  }
 }

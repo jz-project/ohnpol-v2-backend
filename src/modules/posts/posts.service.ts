@@ -86,4 +86,36 @@ export class PostsService {
       })),
     };
   }
+
+  async getNow5(userId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new Error('유저를 찾을 수 없습니다.');
+    }
+
+    type now5Raw = {
+      id: number;
+      decoCard: string;
+    };
+
+    const now5: now5Raw[] = await this.dataSource.query(`
+      SELECT 
+        p.id, 
+        d.decoCard
+      FROM post p
+      INNER JOIN deco_card d ON d.postId = p.id
+      ORDER BY postedDatetime DESC
+      LIMIT 5
+      `);
+
+    return {
+      'now-5-list': now5.map((row) => ({
+        postId: row.id,
+        photo: row.decoCard,
+      })),
+    };
+  }
 }
