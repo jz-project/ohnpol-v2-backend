@@ -79,7 +79,8 @@ export class ArtistsService {
       groupName: string;
     };
 
-    const rawData: artistData[] = await this.dataSource.query(`
+    const rawData: artistData[] = await this.dataSource.query(
+      `
       SELECT DISTINCT a.id, a.groupName
       FROM artist a
       INNER JOIN photo_card pc ON pc.groupName = a.groupName
@@ -94,7 +95,7 @@ export class ArtistsService {
       throw new NotFoundException('유저의 포스트가 없습니다.');
     }
     return {
-      postArtistList: rawData.map((row) => ({
+      decoCardArtistList: rawData.map((row) => ({
         id: row.id,
         groupName: row.groupName,
       })),
@@ -115,6 +116,34 @@ export class ArtistsService {
     return {
       artistsTabFavorite: artists.map((artist) => ({
         groupName: artist.groupName,
+      })),
+    };
+  }
+
+  async artistTabDecoCard(userId: number) {
+    type artistData = {
+      id: number;
+      groupName: string;
+    };
+
+    const rawData: artistData[] = await this.dataSource.query(
+      `
+      SELECT DISTINCT a.id, a.groupName
+      FROM artist a
+      INNER JOIN photo_card pc ON pc.groupName = a.groupName
+      INNER JOIN deco_card dc ON dc.photoCardId = pc.id
+      WHERE dc.userId = ?
+      `,
+      [userId]
+    );
+
+    if (rawData.length === 0) {
+      throw new NotFoundException('유저의 도안이 없습니다.');
+    }
+    return {
+      postArtistList: rawData.map((row) => ({
+        id: row.id,
+        groupName: row.groupName,
       })),
     };
   }
