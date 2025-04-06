@@ -89,6 +89,23 @@ export class ArtistsService {
     };
   }
 
+  async artistProfile(artistId: number) {
+    const artist = await this.artistsRepository.findOne({
+      where: { id: artistId },
+    });
+    if (!artist) {
+      throw new Error('아티스트 정보가 없습니다.');
+    }
+    return {
+      profile: {
+        groupName: artist.groupName,
+        photo: artist.photo,
+        enterComp: artist.entertainmentCompany,
+        collectionQuant: artist.collectionQuantity,
+      },
+    };
+  }
+
   async artistTabPost(userId: number) {
     type artistData = {
       id: number;

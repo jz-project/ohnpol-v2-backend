@@ -1,4 +1,4 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { ArtistsService } from './artists.service';
@@ -41,6 +41,17 @@ export class ArtistsController {
       statusCode: 200,
       message: '아티스트 정보를 조회합니다.',
       result: await this.artistService.allArtist(),
+    };
+  }
+
+  @Get('/:artist-id/profile')
+  @ApiResponse({ status: 200, description: '아티스트 정보를 조회합니다.' })
+  @ApiResponse({ status: 404, description: '아티스트 정보가 없습니다.' })
+  async getArtistProfile(@Param('artistId') artistId: number) {
+    return {
+      statusCode: 200,
+      message: '아티스트 정보를 조회합니다.',
+      result: await this.artistService.artistProfile(artistId),
     };
   }
 
