@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { DataSource } from 'typeorm';
 import { DecoCard } from '../deco-cards/deco-card.entity';
+import { Artist } from '../artists/artist.entity';
 
 @Injectable()
 export class PostsService {
@@ -15,6 +16,8 @@ export class PostsService {
     private usersRepository: Repository<User>,
     @InjectRepository(DecoCard)
     private decoCardsRepository: Repository<DecoCard>,
+    @InjectRepository(Artist)
+    private artistsRepository: Repository<Artist>,
     private dataSource: DataSource
   ) {}
 
@@ -241,6 +244,58 @@ export class PostsService {
     };
   }
 
+  async postsByArtist(userId: number, artistId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+    const artist = await this.artistsRepository.findOne({
+      where: { id: artistId },
+    });
+
+    if (!user) {
+      throw new Error('회원을 찾을 수 없습니다.');
+    }
+    if (!artist) {
+      throw new Error('아티스트를 찾을 수 없습니다.');
+    }
+
+    // 아티스트 ID에 해당하는 포스트 ID 목록 조회
+    const postIdsResult: { postId: number }[] = await this.dataSource.query(
+      `
+    SELECT p.id as postId
+    FROM post p
+    INNER JOIN deco_card dc ON dc.id = p.decoCardId
+    INNER JOIN photo_card pc ON pc.id = dc.photoCardId
+    INNER JOIN artist a ON pc.groupName = a.groupName
+    WHERE a.id = ?
+    `,
+      [artistId]
+    );
+
+    const postIds = postIdsResult.map((row) => row.postId);
+
+    if (postIds.length === 0) {
+      return { 'my-post-list': [] };
+    }
+
+    // postInfos의 모든 요소가 무슨 type인지 알려줌.
+    const postInfos: Awaited<ReturnType<typeof this.getPostsInfos>> =
+      await this.getPostsInfos(postIds);
+
+    return {
+      'my-post-list': postInfos.map((info) => ({
+        postId: info.postId,
+        postDateTime: info.postDatetime,
+        decoCard: info.decoCard,
+        enterComp: info.enterComp,
+        groupName: info.groupName,
+        memberName: info.memberName,
+        collectionName: info.collectionName,
+        nickname: info.nickname,
+        likeQuant: info.likeCount,
+      })),
+    };
+  }
   async deletePost(userId: number, postId: number) {
     const user = await this.usersRepository.findOne({
       where: { id: userId },

@@ -12,7 +12,7 @@ import { AuthModule } from '../auth/auth.module';
     TypeOrmModule.forFeature([Artist]),
     forwardRef(() => UsersModule),
     forwardRef(() => AuthModule),
-    PostsModule,
+    forwardRef(() => PostsModule),
     AuthModule,
   ],
   providers: [ArtistsService],

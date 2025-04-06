@@ -111,6 +111,28 @@ export class PostsController {
     );
   }
 
+  @Get('/:artist-id/posts')
+  @ApiResponse({
+    status: 200,
+    description: '해당 아티스트의 도안을 조회합니다.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 아티스트의 도안이 없습니다.',
+  })
+  async getPostsByArtist(
+    @Request() req: { user: { sub: number } },
+    @Param('aritstId') artistId: number
+  ) {
+    const userId: number = req.user.sub;
+
+    await this.postService.postsByArtist(userId, artistId);
+    return {
+      status: 200,
+      message: '해당 아티스트의 도안을 조회합니다.',
+    };
+  }
+
   @Delete('/:postId')
   @ApiResponse({ status: 204, description: '포스트를 삭제했습니다.' })
   @ApiResponse({

@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
 import { DecoCardsModule } from '../deco-cards/deco-cards.module';
 import { DecoCard } from '../deco-cards/deco-card.entity';
+import { ArtistsModule } from '../artists/artists.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { DecoCard } from '../deco-cards/deco-card.entity';
     forwardRef(() => UsersModule),
     AuthModule,
     forwardRef(() => DecoCardsModule),
+    forwardRef(() => ArtistsModule),
   ],
   providers: [PostsService],
   controllers: [PostsController],
