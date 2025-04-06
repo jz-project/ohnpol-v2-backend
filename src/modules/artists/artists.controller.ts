@@ -33,6 +33,17 @@ export class ArtistsController {
     };
   }
 
+  @Get('/artists')
+  @ApiResponse({ status: 200, description: '아티스트 정보를 조회합니다.' })
+  @ApiResponse({ status: 404, description: '아티스트 정보가 없습니다.' })
+  async getAllArtists() {
+    return {
+      statusCode: 200,
+      message: '아티스트 정보를 조회합니다.',
+      result: await this.artistService.allArtist(),
+    };
+  }
+
   @Get('/post/artist-tab')
   @ApiResponse({ status: 200, description: '아티스트 탭 정보 조회' })
   @ApiResponse({ status: 404, description: '포스트가 없습니다.' })

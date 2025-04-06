@@ -73,6 +73,22 @@ export class ArtistsService {
     };
   }
 
+  async allArtist() {
+    const artists = await this.artistsRepository.find();
+
+    if (artists.length === 0) {
+      throw new Error('아티스트가 정보가 없습니다.');
+    }
+
+    return {
+      artistsList: artists.map((artist) => ({
+        enterComp: artist.entertainmentCompany,
+        photo: artist.photo,
+        groupName: artist.groupName,
+      })),
+    };
+  }
+
   async artistTabPost(userId: number) {
     type artistData = {
       id: number;
