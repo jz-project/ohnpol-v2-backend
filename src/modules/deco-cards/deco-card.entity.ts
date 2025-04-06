@@ -4,7 +4,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -30,8 +29,7 @@ export class DecoCard {
   @UpdateDateColumn()
   updatedAt: Timestamp;
 
-  @OneToOne(() => Post)
-  @JoinColumn()
+  @OneToOne(() => Post, (post) => post.decoCard)
   post: Post;
 
   @ManyToOne(() => User, (user) => user.id)

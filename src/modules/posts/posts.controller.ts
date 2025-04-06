@@ -5,9 +5,11 @@ import {
   Request,
   Post,
   Param,
+  Delete,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { PostsService } from './posts.service';
 
 @Controller('posts')
@@ -62,6 +64,69 @@ export class PostsController {
     return {
       status: 201,
       message: '도안 게시를 완료합니다.',
+    };
+  }
+
+  @Get('liked/:userId')
+  @ApiResponse({ status: 200, description: '좋아요 누른 게시물을 조회합니다.' })
+  @ApiResponse({
+    status: 404,
+    description: '좋아요 누른 게시물이 없습니다.',
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    enum: ['oldest', 'newest', 'most_liked', 'least_liked'],
+    description: '정렬 방식',
+    example: 'newest',
+    schema: { default: 'newest' },
+  })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    description: '몇 번째부터 조회할지',
+    example: '0',
+    schema: { default: 0 },
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: '몇 개까지 조회할지',
+    example: '5',
+    schema: { default: 5 },
+  })
+  async getLikedPosts(
+    @Request() req: { user: { sub: number } },
+    @Query('sort')
+    sort: 'oldest' | 'newest' | 'most_liked' | 'least_liked' = 'newest',
+    @Query('offset') offset?: string,
+    @Query('limit') limit?: string
+  ) {
+    const userId: number = req.user.sub;
+    await this.postService.getPostsLiked(
+      userId,
+      sort,
+      Number(offset ?? 0),
+      Number(limit ?? 5)
+    );
+  }
+
+  @Delete('/:postId')
+  @ApiResponse({ status: 204, description: '포스트를 삭제했습니다.' })
+  @ApiResponse({
+    status: 404,
+    description: '포스트를 삭제할 수 없습니다.',
+  })
+  async deletePost(
+    @Request() req: { user: { sub: number } },
+    @Param('postId') postId: number
+  ) {
+    const userId = req.user.sub;
+
+    await this.postService.deletePost(userId, postId);
+    return {
+      ststus: 204,
+      message: '포스트를 삭제했습니다.',
     };
   }
 }

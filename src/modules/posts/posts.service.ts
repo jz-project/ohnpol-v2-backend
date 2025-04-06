@@ -18,74 +18,109 @@ export class PostsService {
     private dataSource: DataSource
   ) {}
 
-  async getHot10(userId: number) {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-    });
-
-    /*
-    Likes 테이블: user_id, post_id를 갖는 다대다 테이블
-
-    Posts → DecoCard (1:1)
-
-    DecoCard → PhotoCard (N:1)
-
-    PhotoCard → Artist (N:1)
-
-    Posts → User (N:1)
-    */
-
-    type HotPostRaw = {
+  // 재사용 가능한 모듈
+  async getPostsInfos(postIds: number[]): Promise<
+    {
       postId: number;
-      likeCount: number;
+      postDatetime: Date;
       decoCard: string;
-      groupName: string;
       enterComp: string;
-      memberCount: number;
+      groupName: string;
       memberName: string;
       collectionName: string;
-      userId: number;
       nickname: string;
+      userId: number;
+      likeCount: number;
+    }[]
+  > {
+    if (postIds.length === 0) return [];
+
+    type rawData = {
+      postId: number;
+      postDatetime: Date;
+      decoCard: string;
+      enterComp: string;
+      groupName: string;
+      memberName: string;
+      collectionName: string;
+      nickname: string;
+      userId: number;
+      likeCount: number;
     };
 
-    const rawData: HotPostRaw[] = await this.dataSource.query(`
+    const result: rawData[] = await this.dataSource.query(
+      `
       SELECT 
-        l.post_id AS postId,
-        COUNT(*) AS likeCount,
-        d.decoCard AS decoCard,
-        a.entertainmentCompany AS enterComp,
-        a.groupName AS groupName,
-        pc.memberName AS memberName,
-        a.memberCount AS memberCount,
-        pc.collectionName AS collectionName,
-        u.id AS userId,
-        u.nickname AS nickname
-      FROM likes l
-      INNER JOIN post p ON p.id = l.post_id
-      INNER JOIN deco_card d ON d.postId = p.id
-      INNER JOIN photo_card pc ON d.photoCardId = pc.id
-      INNER JOIN artist a ON pc.groupName = a.groupName
-      INNER JOIN user u ON l.user_id = u.id
-      GROUP BY l.post_id
-      ORDER BY likeCount DESC
-      LIMIT 10;
-    `);
+      p.id AS postId,
+      p.postDatetime, 
+      dc.decoCard,
+      a.entertainmentCompany AS enterComp,
+      a.groupName,
+      pc.memberName,
+      pc.collectionName,
+      u.nickname,
+      u.id AS userId,
+      COUNT(l2.post_id) AS likeCount
+    FROM post p
+    INNER JOIN user u ON p.userId = u.id
+    INNER JOIN deco_card dc ON dc.postId = p.id
+    INNER JOIN photo_card pc ON dc.photoCardId = pc.id
+    INNER JOIN artist a ON pc.photoCard = a.photoCard
+    LEFT JOIN likes l2 ON l2.post_id = p.id
+    WHERE p.id IN (${postIds.map(() => '?').join(',')})
+    GROUP BY p.id, p.postDatetime, dc.decoCard, a.entertainmentCompany, a.groupName, pc.memberName, pc.collectionName, u.nickname
+      `,
+      postIds
+    );
 
+    return result.map((row) => ({
+      postId: row.postId,
+      postDatetime: row.postDatetime,
+      decoCard: row.decoCard,
+      enterComp: row.enterComp,
+      groupName: row.groupName,
+      memberName: row.memberName,
+      collectionName: row.collectionName,
+      nickname: row.nickname,
+      userId: row.userId,
+      likeCount: Number(row.likeCount),
+    }));
+  }
+
+  async getHot10(userId: number) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new Error('사용자를 찾을 수 없습니다.');
     }
 
+    // 1. 좋아요 많은 상위 10개 postId만 조회
+    const hotPostIds: { postId: number }[] = await this.dataSource.query(`
+      SELECT l.post_id AS postId
+      FROM likes l
+      GROUP BY l.post_id
+      ORDER BY COUNT(*) DESC
+      LIMIT 10
+    `);
+
+    const postIds = hotPostIds.map((row) => row.postId);
+
+    // 2. 상세 정보 가져오기 (모듈 함수 재사용)
+    const postInfos = await this.getPostsInfos(postIds);
+
+    // 3. 순서 맞추기 (likeCount 기준 내림차순 정렬)
+    postInfos.sort((a, b) => b.likeCount - a.likeCount);
+
     return {
-      'hot-10-list': rawData.map((row) => ({
-        postId: row.postId,
-        likeQuant: row.likeCount,
-        decoCard: row.decoCard,
-        enterComp: row.enterComp,
-        groupName: row.groupName,
-        memberName: row.memberName,
-        collectionName: row.collectionName,
-        userId: row.userId,
-        nickname: row.nickname,
+      'hot-10-list': postInfos.map((post) => ({
+        postId: post.postId,
+        likeQuant: post.likeCount,
+        decoCard: post.decoCard,
+        enterComp: post.enterComp,
+        groupName: post.groupName,
+        memberName: post.memberName,
+        collectionName: post.collectionName,
+        userId: post.userId, // ← 필요하다면 getPostInfos에 userId도 포함되도록 수정해야 함
+        nickname: post.nickname, // ↑
       })),
     };
   }
@@ -144,5 +179,85 @@ export class PostsService {
     });
 
     return await this.postsRepository.save(post);
+  }
+
+  async getPostsLiked(
+    userId: number,
+    sort: 'oldest' | 'newest' | 'most_liked' | 'least_liked' = 'newest',
+    offset = 0,
+    limit = 5
+  ) {
+    // 1. 유저 존재 확인
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) throw new Error('사용자를 찾을 수 없습니다.');
+
+    // 2. 정렬 방식 설정
+    let orderBy: string;
+    switch (sort) {
+      case 'oldest':
+        orderBy = 'p.postedDatetime ASC';
+        break;
+      case 'newest':
+        orderBy = 'p.postedDatetime DESC';
+        break;
+      case 'most_liked':
+      case 'least_liked':
+        orderBy = 'p.postedDatetime DESC'; // 좋아요 기준 정렬은 나중에 JS에서 처리
+        break;
+      default:
+        orderBy = 'p.postedDatetime DESC';
+    }
+
+    // 3. 사용자가 좋아요한 post의 ID만 먼저 가져오기
+    const postIdRows: { postId: number }[] = await this.dataSource.query(
+      `
+      SELECT p.id AS postId
+      FROM post p
+      INNER JOIN likes l ON l.post_id = p.id
+      WHERE l.user_id = ?
+      ORDER BY ${orderBy}
+      LIMIT ? OFFSET ?
+    `,
+      [userId, limit, offset]
+    );
+
+    const postsIds = postIdRows.map((row) => row.postId);
+
+    // 4. 각 post의 상세 정보 + 좋아요 수 조회
+    const postInfos = await this.getPostsInfos(postsIds);
+
+    // 5. 좋아요 수 기준 정렬은 JS에서 처리
+    if (sort === 'most_liked') {
+      postInfos.sort((a, b) => b.likeCount - a.likeCount);
+    } else if (sort === 'least_liked') {
+      postInfos.sort((a, b) => a.likeCount - b.likeCount);
+    }
+
+    // 6. 클라이언트에 응답할 데이터
+    return {
+      'like-list': postInfos,
+      nextOffset: offset + postInfos.length, // 다음 요청할 offset
+      hasMore: postInfos.length === limit, // 더 불러올 게 있는지 여부
+    };
+  }
+
+  async deletePost(userId: number, postId: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+    const post = await this.postsRepository.findOne({
+      where: { id: postId },
+    });
+
+    if (!user) {
+      throw new Error('사용자를 찾을 수 없습니다.');
+    }
+    if (!post) {
+      throw new Error('포스트를 찾을 수 없습니다.');
+    }
+
+    await this.postsRepository.delete(postId);
+
+    return { message: '포스트가 성공적으로 삭제되었습니다.' };
   }
 }
