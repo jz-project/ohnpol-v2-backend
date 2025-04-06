@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from 'node_modules/@nestjs/typeorm';
 import { User } from '../users/user.entity';
 import { Artist } from './artist.entity';
-import { Repository } from 'node_modules/typeorm';
+import { DataSource, Repository } from 'node_modules/typeorm';
 
 @Injectable()
 export class ArtistsService {
@@ -10,7 +10,8 @@ export class ArtistsService {
     @InjectRepository(Artist)
     private artistsRepository: Repository<Artist>,
     @InjectRepository(User)
-    private usersRepository: Repository<User>
+    private usersRepository: Repository<User>,
+    private dataSource: DataSource
   ) {}
 
   async favoriteArtists(userId: number): Promise<Artist[]> {
@@ -73,23 +74,29 @@ export class ArtistsService {
   }
 
   async artistTabPost(userId: number) {
-    const artists = await this.artistsRepository
-      .createQueryBuilder('artist')
-      .leftJoin('artist.collections', 'collection')
-      .leftJoin('collection.photoCards', 'photoCard')
-      .leftJoin('photocard.decoCards', 'decoCard')
-      .leftJoin('decoCard.posts', 'post')
-      .where('decoCard.user_id = :userId', { userId })
-      .distinct(true)
-      .getMany();
+    type artistData = {
+      id: number;
+      groupName: string;
+    };
 
-    if (artists.length === 0) {
+    const rawData: artistData[] = await this.dataSource.query(`
+      SELECT DISTINCT a.id, a.groupName
+      FROM artist a
+      INNER JOIN photo_card pc ON pc.groupName = a.groupName
+      INNER JOIN deco_card dc ON dc.photoCardId = pc.id
+      INNER JOIN post p ON p.decoCardId = dc.id
+      WHERE dc.userId = ?
+      `,
+      [userId]
+    );
+
+    if (rawData.length === 0) {
       throw new NotFoundException('유저의 포스트가 없습니다.');
     }
     return {
-      artistsTabPost: artists.map((artist) => ({
-        id: artist.id,
-        groupName: artist.groupName,
+      postArtistList: rawData.map((row) => ({
+        id: row.id,
+        groupName: row.groupName,
       })),
     };
   }
