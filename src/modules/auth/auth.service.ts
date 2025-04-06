@@ -101,10 +101,18 @@ export class AuthService {
     }
   }
 
-  async IsNicknameAvailable(nickname: string) {
+  async isNicknameAvailable(nickname: string) {
     const user = await this.usersRepository.findOne({ where: { nickname } });
     if (user) {
       throw new BadRequestException('같은 닉네임이 이미 존재합니다.');
+    }
+    return { available: true };
+  }
+
+  async emailExist(email: string) {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (user) {
+      throw new BadRequestException('이미 가입된 회원입니다.');
     }
     return { available: true };
   }
