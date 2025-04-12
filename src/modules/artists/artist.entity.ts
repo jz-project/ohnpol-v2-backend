@@ -9,9 +9,11 @@ import {
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity()
+@Unique(['groupName']) // groupName 컬럼에 고유 제약 설정
 export class Artist {
   @PrimaryGeneratedColumn()
   id: number;

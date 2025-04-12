@@ -137,7 +137,7 @@ export class UsersService {
   async deleteFavorite(userId: number, artistId: number) {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
-      relations: ['favoriteArtists'], // likedPosts 관계를 로드
+      relations: ['favoriteArtists'],
     });
 
     const artist = await this.artistsRepository.findOne({
@@ -151,13 +151,12 @@ export class UsersService {
       throw new Error('유저를 찾을 수 없습니다.');
     }
 
-    // 좋아요 관계 제거
     await this.usersRepository
       .createQueryBuilder()
       .relation(User, 'favoriteArtists')
       .of(userId)
-      .remove(artistId); // 특정 게시물 제거
+      .remove(artistId);
 
-    return { message: '좋아요가 성공적으로 삭제되었습니다.' };
+    return { message: '즐겨찾기가 성공적으로 삭제되었습니다.' };
   }
 }

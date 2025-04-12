@@ -11,11 +11,11 @@ import { ArtistsModule } from '../artists/artists.module';
   imports: [
     TypeOrmModule.forFeature([User]),
     forwardRef(() => AuthModule),
-    PostsModule,
+    forwardRef(() => PostsModule),
     ArtistsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, UsersService],
 })
 export class UsersModule {}

@@ -35,7 +35,7 @@ export class AuthService {
       );
     }
 
-    //닉네임이 고유한지 확인
+    //닉네임이 고유한지 확인 -> API 따로 만들기
     const hasAccount = await this.usersRepository.findOne({
       where: { nickname },
     });
@@ -47,8 +47,8 @@ export class AuthService {
     }
 
     // 비밀번호 제약 조건
-    // 1.
-    // 2.
+    // 1. 길이 8 이상 20 이하
+    // 2. 영문, 숫자 둘 다 필수
 
     // 비밀번호 암호화
     const saltRounds = 11;
@@ -99,5 +99,21 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  async isNicknameAvailable(nickname: string) {
+    const user = await this.usersRepository.findOne({ where: { nickname } });
+    if (user) {
+      throw new BadRequestException('같은 닉네임이 이미 존재합니다.');
+    }
+    return { available: true };
+  }
+
+  async emailExist(email: string) {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (user) {
+      throw new BadRequestException('이미 가입된 회원입니다.');
+    }
+    return { available: true };
   }
 }

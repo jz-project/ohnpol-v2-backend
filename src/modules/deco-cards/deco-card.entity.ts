@@ -4,13 +4,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
 } from 'typeorm';
+import { PhotoCard } from '../photo-cards/photo-card.entity';
 
 @Entity()
 export class DecoCard {
@@ -29,10 +29,12 @@ export class DecoCard {
   @UpdateDateColumn()
   updatedAt: Timestamp;
 
-  @OneToOne(() => Post)
-  @JoinColumn()
+  @OneToOne(() => Post, (post) => post.decoCard)
   post: Post;
 
   @ManyToOne(() => User, (user) => user.id)
   user: User;
+
+  @ManyToOne(() => PhotoCard, (photoCard) => photoCard.id)
+  photoCard: PhotoCard;
 }

@@ -2,14 +2,16 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Post,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserLogInDto, UserRegisterDto } from '../users/dto/user.dto';
 import { ValidationError } from 'class-validator';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -58,12 +60,29 @@ export class AuthController {
     return this.authService.logIn(userLogInDto);
   }
 
-  // 로그인한 사용자 토큰 조회
-  // @Get('/user')
-  // @UseGuards(AuthGuard)
-  // @ApiBearerAuth()
-  // getToken(@Request() req) {
-  //   // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-  //   return req.user;
-  // }
+  @Get('/nickname/availability')
+  @ApiQuery({
+    name: 'nickname',
+    required: true,
+    description: '중복 확인할 닉네임',
+    default: '온폴이',
+  })
+  @ApiResponse({ status: 200, description: '가입 가능한 닉네임입니다.' })
+  @ApiResponse({ status: 400, description: '이미 존재하는 닉네임입니다.' })
+  async isNicknameAvailable(@Query('nickname') nickname: string) {
+    return await this.authService.isNicknameAvailable(nickname);
+  }
+
+  @Get('/email/exists')
+  @ApiQuery({
+    name: 'email',
+    required: true,
+    description: '중복 확인할 이메일',
+    default: 'ohnpol@example.com',
+  })
+  @ApiResponse({ status: 200, description: '가입 가능한 이메일입니다.' })
+  @ApiResponse({ status: 400, description: '이미 가입된 회원입니다.' })
+  async isAlreadyRegistered(@Query('email') email: string) {
+    return await this.authService.emailExist(email);
+  }
 }

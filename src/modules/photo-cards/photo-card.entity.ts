@@ -2,19 +2,19 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 import { DecoCard } from 'src/modules/deco-cards/deco-card.entity';
 import { User } from 'src/modules/users/user.entity';
 import { Collection } from 'src/modules/collections/collection.entity';
 
 @Entity()
+@Unique(['photoCard']) // 사진이 중복되지 않도록 처리
 export class PhotoCard {
   @PrimaryGeneratedColumn()
   id: number;
@@ -49,13 +49,12 @@ export class PhotoCard {
   @UpdateDateColumn()
   updatedAt: Timestamp;
 
-  @OneToOne(() => DecoCard)
-  @JoinColumn()
-  decocard: DecoCard;
-
   @ManyToOne(() => User, (user) => user.id)
   user: User;
 
   @OneToMany(() => Collection, (collection) => collection.name)
   collection: Collection[];
+
+  @OneToMany(() => DecoCard, (decoCard) => decoCard.id)
+  decoCard: DecoCard[];
 }
