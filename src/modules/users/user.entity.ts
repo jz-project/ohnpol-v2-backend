@@ -27,10 +27,13 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({
+    default:
+      'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg',
+  })
   avatar: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   biography: string;
 
   @CreateDateColumn({ type: 'timestamp' })
