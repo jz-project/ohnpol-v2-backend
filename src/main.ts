@@ -36,7 +36,10 @@ export async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 
-  //await InsertData();
+  app.enableCors({
+    origin: 'http://localhost:3000', // ← 프론트 dev 서버 주소
+    credentials: true,
+  });
 }
 
 // async function InsertData() {
