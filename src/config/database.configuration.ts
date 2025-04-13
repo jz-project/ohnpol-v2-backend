@@ -17,7 +17,7 @@ export const getDataSourceOptions = (
   password: configService.get<string>('DATABASE_PASSWORD'),
   database: configService.get<string>('DATABASE_NAME'),
   entities: [User, Artist, PhotoCard, Collection, DecoCard, Post],
-  synchronize: false, // 개발 환경에서만 true로 설정 (배포 환경에서는 false)
+  synchronize: true, // 개발 환경에서만 true로 설정 (배포 환경에서는 false)
   migrations: ['./src/migrations/*.ts'],
   ssl: {
     rejectUnauthorized: true,
