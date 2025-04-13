@@ -15,6 +15,6 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY .env .env
 
-EXPOSE 3000
+EXPOSE 3001
 CMD ["node", "--experimental-global-webcrypto", "dist/main"]
 
