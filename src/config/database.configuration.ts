@@ -19,4 +19,7 @@ export const getDataSourceOptions = (
   entities: [User, Artist, PhotoCard, Collection, DecoCard, Post],
   synchronize: true, // 개발 환경에서만 true로 설정 (배포 환경에서는 false)
   migrations: ['./src/migrations/*.ts'],
+  ssl: {
+    rejectUnauthorized: true,
+  },
 });
