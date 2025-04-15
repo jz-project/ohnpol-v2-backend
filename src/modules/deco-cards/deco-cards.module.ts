@@ -8,6 +8,7 @@ import { PhotoCardsModule } from '../photo-cards/photo-cards.module';
 import { User } from '../users/user.entity';
 import { PhotoCard } from '../photo-cards/photo-card.entity';
 import { AuthModule } from '../auth/auth.module';
+import { ArtistsModule } from '../artists/artists.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuthModule } from '../auth/auth.module';
     forwardRef(() => UsersModule),
     PhotoCardsModule,
     AuthModule,
+    ArtistsModule,
   ],
   providers: [DecoCardsService],
   controllers: [DecoCardsController],

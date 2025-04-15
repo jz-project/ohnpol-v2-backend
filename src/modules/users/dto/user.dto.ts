@@ -28,14 +28,14 @@ export class UserLogInDto {
   @IsEmail()
   @ApiProperty({
     description: '이메일 주소',
-    example: 'ohnpol@example.com',
+    example: 'admin@example.com',
   })
   email: string;
 
   @IsNotEmpty()
   @ApiProperty({
     description: '비밀번호',
-    example: 'ohnpol1004',
+    example: 'admin1004',
   })
   password: string;
 }
