@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './post.entity';
 import { Repository } from 'typeorm';
@@ -55,7 +55,7 @@ export class PostsService {
       `
       SELECT 
       p.id AS postId,
-      p.postDatetime, 
+      p.postedDatetime, 
       dc.decoCard,
       a.entertainmentCompany AS enterComp,
       a.groupName,
@@ -65,13 +65,13 @@ export class PostsService {
       u.id AS userId,
       COUNT(l2.post_id) AS likeCount
     FROM post p
-    INNER JOIN user u ON p.userId = u.id
-    INNER JOIN deco_card dc ON dc.postId = p.id
+    INNER JOIN deco_card dc ON p.decoCardId = dc.id
     INNER JOIN photo_card pc ON dc.photoCardId = pc.id
-    INNER JOIN artist a ON pc.photoCard = a.photoCard
+    INNER JOIN user u ON u.id = dc.userId
+    INNER JOIN artist a ON pc.groupName = a.groupName
     LEFT JOIN likes l2 ON l2.post_id = p.id
     WHERE p.id IN (${postIds.map(() => '?').join(',')})
-    GROUP BY p.id, p.postDatetime, dc.decoCard, a.entertainmentCompany, a.groupName, pc.memberName, pc.collectionName, u.nickname
+    GROUP BY p.id, p.postedDatetime, dc.decoCard, a.entertainmentCompany, a.groupName, pc.memberName, pc.collectionName, u.nickname
       `,
       postIds
     );
@@ -259,7 +259,7 @@ export class PostsService {
       throw new Error('아티스트를 찾을 수 없습니다.');
     }
 
-    // 아티스트 ID에 해당하는 포스트 ID 목록 조회
+    // 유저와 아티스트 ID에 해당하는 포스트 ID 목록 조회
     const postIdsResult: { postId: number }[] = await this.dataSource.query(
       `
     SELECT p.id as postId
@@ -267,9 +267,10 @@ export class PostsService {
     INNER JOIN deco_card dc ON dc.id = p.decoCardId
     INNER JOIN photo_card pc ON pc.id = dc.photoCardId
     INNER JOIN artist a ON pc.groupName = a.groupName
-    WHERE a.id = ?
+    INNER JOIN user u ON dc.userId = u.id
+    WHERE a.id = ? AND u.id = ?
     `,
-      [artistId]
+      [artistId, userId]
     );
 
     const postIds = postIdsResult.map((row) => row.postId);
@@ -312,7 +313,74 @@ export class PostsService {
     }
 
     await this.postsRepository.delete(postId);
+  }
 
-    return { message: '포스트가 성공적으로 삭제되었습니다.' };
+  async artistAll(artistId: number) {
+    const postIdData: { postId: number }[] = await this.dataSource.query(
+      `
+      SELECT p.id AS postId
+      FROM post p
+      INNER JOIN deco_card dc ON p.decoCardId = dc.id
+      INNER JOIN photo_card pc ON pc.id = dc.photoCardId
+      INNER JOIN artist a ON a.groupName = pc.groupName
+      WHERE a.id = ?
+      `,
+      [artistId]
+    );
+
+    const postIds = postIdData.map((row) => row.postId);
+
+    if (postIds.length === 0) {
+      throw new NotFoundException('해당 아티스트의 포스트가 없습니다.');
+    }
+
+    const postInfos: Awaited<ReturnType<typeof this.getPostsInfos>> =
+      await this.getPostsInfos(postIds);
+
+    return {
+      'artist-post-list': postInfos.map((info) => ({
+        postId: info.postId,
+        decoCard: info.decoCard,
+        enterComp: info.enterComp,
+        groupName: info.groupName,
+        memberName: info.memberName,
+        collectionName: info.collectionName,
+        userID: info.userId,
+        nickname: info.nickname,
+        likeCount: info.likeCount,
+      })),
+    };
+  }
+
+  async memberAll(memberName: string) {
+    const postIdData: { postId: number }[] = await this.dataSource.query(
+      `
+      SELECT p.id AS postId
+      FROM post p
+      INNER JOIN deco_card dc ON p.decoCardId = dc.id
+      INNER JOIN photo_card pc ON pc.id = dc.photoCardId
+      WHERE pc.memberName = ?
+      `,
+      [memberName]
+    );
+
+    const postIds = postIdData.map((row) => row.postId);
+
+    const postInfos: Awaited<ReturnType<typeof this.getPostsInfos>> =
+      await this.getPostsInfos(postIds);
+
+    return {
+      'member-post-list': postInfos.map((info) => ({
+        postId: info.postId,
+        decoCard: info.decoCard,
+        enterComp: info.enterComp,
+        groupName: info.groupName,
+        memberName: info.memberName,
+        collectionName: info.collectionName,
+        userID: info.userId,
+        nickname: info.nickname,
+        likeCount: info.likeCount,
+      })),
+    };
   }
 }

@@ -10,6 +10,11 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 export async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: 'http://localhost:3000', // ← 프론트 dev 서버 주소
+    credentials: true,
+  });
+
   // Swagger 설정
   const config = new DocumentBuilder()
     .setTitle('Ohnpol')
@@ -25,6 +30,7 @@ export async function bootstrap() {
       'access-token'
     )
     .build();
+
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory, {
     swaggerOptions: {
@@ -34,12 +40,9 @@ export async function bootstrap() {
     },
   });
 
-  await app.listen(process.env.PORT ?? 3000);
-
-  app.enableCors({
-    origin: 'http://localhost:3000', // ← 프론트 dev 서버 주소
-    credentials: true,
-  });
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+  console.log(`✅ Server is running on http://localhost:${port}`);
 }
 
 // async function InsertData() {

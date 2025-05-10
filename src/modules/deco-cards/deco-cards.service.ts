@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from 'node_modules/@nestjs/typeorm';
 import { PhotoCard } from '../photo-cards/photo-card.entity';
 import { User } from '../users/user.entity';
 import { Repository } from 'node_modules/typeorm';
 import { DecoCard } from './deco-card.entity';
+//import { Artist } from '../artists/artist.entity';
 //import { BlobServiceClient } from '@azure/storage-blob';
 
 @Injectable()
@@ -20,6 +21,9 @@ export class DecoCardsService {
     private photoCardsRepository: Repository<PhotoCard>,
     @InjectRepository(User)
     private usersRepository: Repository<User>
+    // @InjectRepository(Artist)
+    // private artistsRepository: Repository<Artist>,
+    // private dataSource: DataSource
   ) {}
 
   async registerDecoCard(
@@ -63,5 +67,17 @@ export class DecoCardsService {
     });
 
     return await this.decoCardsRepository.save(decoCard);
+  }
+
+  async deleteDecoCard(userId: number, decoCardId: number) {
+    const decoCard = await this.decoCardsRepository.findOne({
+      where: { id: decoCardId },
+    });
+
+    if (!decoCard) {
+      throw new NotFoundException('도안을 찾을 수 없습니다.');
+    }
+
+    await this.decoCardsRepository.delete(decoCardId);
   }
 }

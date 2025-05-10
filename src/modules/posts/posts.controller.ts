@@ -4,12 +4,18 @@ import {
   UseGuards,
   Request,
   Post,
-  Param,
   Delete,
   Query,
+  HttpCode,
+  Param,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
-import { ApiBearerAuth, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiQuery,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { PostsService } from './posts.service';
 
 @Controller('posts')
@@ -48,7 +54,7 @@ export class PostsController {
     };
   }
 
-  @Post('/:decocard-id')
+  @Post('/:decocardId')
   @ApiResponse({ status: 201, description: '도안 게시를 완료합니다.' })
   @ApiResponse({
     status: 400,
@@ -111,29 +117,33 @@ export class PostsController {
     );
   }
 
-  @Get('/:artist-id/posts')
+  @Get('/user/:artistId')
+  @HttpCode(200)
+  @ApiParam({
+    name: 'artistId',
+    required: true,
+    description: '아티스트 ID',
+    type: Number,
+  })
   @ApiResponse({
     status: 200,
-    description: '해당 아티스트의 도안을 조회합니다.',
+    description: '유저의 해당 아티스트의 도안을 조회합니다.',
   })
   @ApiResponse({
     status: 404,
-    description: '해당 아티스트의 도안이 없습니다.',
+    description: '유저의 해당 아티스트의 도안이 없습니다.',
   })
   async getPostsByArtist(
     @Request() req: { user: { sub: number } },
-    @Param('aritstId') artistId: number
+    @Param('artistId') artistId: number
   ) {
     const userId: number = req.user.sub;
-
-    await this.postService.postsByArtist(userId, artistId);
-    return {
-      status: 200,
-      message: '해당 아티스트의 도안을 조회합니다.',
-    };
+    const result = await this.postService.postsByArtist(userId, artistId);
+    return result;
   }
 
   @Delete('/:postId')
+  @HttpCode(204)
   @ApiResponse({ status: 204, description: '포스트를 삭제했습니다.' })
   @ApiResponse({
     status: 404,
@@ -146,9 +156,47 @@ export class PostsController {
     const userId = req.user.sub;
 
     await this.postService.deletePost(userId, postId);
-    return {
-      ststus: 204,
-      message: '포스트를 삭제했습니다.',
-    };
+  }
+
+  @Get(':artistId')
+  @HttpCode(200)
+  @ApiParam({
+    name: 'artistId',
+    required: true,
+    description: '아티스트 ID',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '해당 아티스트의 포스트를 조회합니다.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 아티스트의 포스트가 없습니다.',
+  })
+  async artistAll(@Param('artistId') artistId: number) {
+    const result = await this.postService.artistAll(artistId);
+    return result;
+  }
+
+  @Get('/:memberName')
+  @ApiParam({
+    name: 'memberName',
+    required: true,
+    description: '멤버 이름',
+    type: String,
+  })
+  @HttpCode(200)
+  @ApiResponse({
+    status: 200,
+    description: '해당 멤버의 포스트를 조회합니다.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 멤버의 포스트가 없습니다.',
+  })
+  async memberAll(@Param('memberName') memberName: string) {
+    const result = await this.postService.memberAll(memberName);
+    return result;
   }
 }
